@@ -53,7 +53,14 @@ make run
 
 This will build and run the server binary.
 
-By default, the server listens on `localhost:8080`. You can change the address by modifying the `addr` flag in `cmd/parser/main.go`.
+#### Usage of binary:
+
+./bin/parser -addr string -initial-block int -scan-interval int -testnet
+
+- **-addr string:** Address to start the server on, e.g., ':8080' or 'localhost:8080' (default ":8080")
+- **-initial-block int:** Initial block number to start parsing from
+- **-scan-interval int:** Interval in seconds to scan for new blocks (default 10)
+- **-testnet:** Use testnet endpoint
 
 ### API Endpoints
 
@@ -113,12 +120,3 @@ make clean
 - test-memorydb: Runs tests for `memorydb`.
 - test-parser: Runs tests for the `parser` package.
 - clean: Cleans up the binary and other generated files.
-
-## Usage of ./bin/parser:
-
-./bin/parser -addr string -initial-block int -scan-interval int -testnet
-
-- **-addr string:** Address to start the server on, e.g., ':8080' or 'localhost:8080' (default ":8080")
-- **-initial-block int:** Initial block number to start parsing from
-- **-scan-interval int:** Interval in seconds to scan for new blocks (default 10)
-- **-testnet:** Use testnet endpoint
