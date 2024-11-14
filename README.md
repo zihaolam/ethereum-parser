@@ -1,13 +1,13 @@
-# Parser Service
+# Ethereum Parser
 
-This is a simple Go-based HTTP server for handling Ethereum address subscriptions, fetching transactions, and retrieving the current block. The server is designed to use an Ethereum blockchain parser, allowing users to subscribe to Ethereum addresses and retrieve transactions for those addresses.
+This is a simple parser for handling Ethereum address subscriptions, fetching transactions, and retrieving the current block. The server is designed to use an Ethereum blockchain parser, allowing users to subscribe to Ethereum addresses and retrieve transactions for those addresses.
+The projects comes with a http server that can be used to interact with the parser.
 
 ## Features
 
 - Subscribe: Subscribe to Ethereum addresses to track transactions.
 - Get Transactions: Retrieve a list of transactions for subscribed addresses.
 - Get Current Block: Get the latest block number.
-- Wildcard Route Logging: Logs requests to unhandled routes, providing a custom 404 response.
 
 ## Requirements
 
@@ -75,12 +75,6 @@ By default, the server listens on `localhost:8080`. You can change the address b
   GET /current_block
   ```
 
-- Wildcard Unhandled Route: Any unhandled routes are logged and return a `404 - Not Found` response.
-
-### Logging
-
-The server uses a custom logging middleware to log request details. Each request logs the method, path, and processing time.
-
 ### Testing
 
 The Makefile includes several test commands for running tests:
@@ -119,3 +113,12 @@ make clean
 - test-memorydb: Runs tests for `memorydb`.
 - test-parser: Runs tests for the `parser` package.
 - clean: Cleans up the binary and other generated files.
+
+## Usage of ./bin/parser:
+
+./bin/parser -addr string -initial-block int -scan-interval int -testnet
+
+- **-addr string:** Address to start the server on, e.g., ':8080' or 'localhost:8080' (default ":8080")
+- **-initial-block int:** Initial block number to start parsing from
+- **-scan-interval int:** Interval in seconds to scan for new blocks (default 10)
+- **-testnet:** Use testnet endpoint
