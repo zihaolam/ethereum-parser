@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/zihaolam/ethereum-parser/pkg/api"
-	"github.com/zihaolam/ethereum-parser/pkg/parser"
+	"github.com/zihaolam/ethereum-parser/internal/api"
+	"github.com/zihaolam/ethereum-parser/internal/parser"
 )
 
 func getEndpoint(isTestnet bool) string {
@@ -40,7 +40,7 @@ func main() {
 	logger := log.Default()
 
 	// Initialize the parser (assuming parser.NewParser is a constructor for Parser)
-	p, startScan := parser.NewParser(logger, getEndpoint(*testnet), *initialBlockNumber)
+	p := parser.NewParser(logger, getEndpoint(*testnet), *initialBlockNumber)
 
 	// Initialize the API with the parser
 	api := api.New(p, logger)
@@ -62,7 +62,7 @@ func main() {
 		// Start the scanner
 		interval := time.Duration(*scanInterval) * time.Second
 		logger.Println("Starting scanner")
-		startScan(ctx, interval)
+		p.StartScan(ctx, interval)
 	}()
 
 	// Start the server

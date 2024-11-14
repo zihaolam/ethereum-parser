@@ -7,15 +7,15 @@ import (
 	"time"
 
 	"github.com/zihaolam/ethereum-parser/internal/logging"
-	"github.com/zihaolam/ethereum-parser/pkg/parser"
+	"github.com/zihaolam/ethereum-parser/internal/parser"
 )
 
 type Api struct {
-	parser parser.Parser
+	parser *parser.Parser
 	logger logging.Logger
 }
 
-func New(parser parser.Parser, logger logging.Logger) *Api {
+func New(parser *parser.Parser, logger logging.Logger) *Api {
 	return &Api{
 		parser: parser,
 		logger: logger,
