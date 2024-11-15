@@ -17,5 +17,5 @@ type Parser interface {
 }
 
 func NewParser(logger logging.Logger, ethEndpoint string, initialBlockNumber int) Parser {
-	return parser.NewParser(logger, ethEndpoint, initialBlockNumber)
+	return parser.New(logger, ethEndpoint, initialBlockNumber)
 }
