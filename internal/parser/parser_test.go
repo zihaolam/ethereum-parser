@@ -17,7 +17,7 @@ const (
 // Test for GetCurrentBlock using Cloudflare Ethereum Gateway
 func TestParser(t *testing.T) {
 	logger := log.Default()
-	p := parser.NewParser(logger, ethEndpoint, initialBlock)
+	p := parser.New(logger, ethEndpoint, initialBlock)
 
 	t.Run("GetCurrentBlock", func(t *testing.T) {
 		if p.GetCurrentBlock() != initialBlock {

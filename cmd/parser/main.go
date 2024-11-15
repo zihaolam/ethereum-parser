@@ -39,8 +39,7 @@ func main() {
 	// Use default logger for now
 	logger := log.Default()
 
-	// Initialize the parser (assuming parser.NewParser is a constructor for Parser)
-	p := parser.NewParser(logger, getEndpoint(*testnet), *initialBlockNumber)
+	p := parser.New(logger, getEndpoint(*testnet), *initialBlockNumber)
 
 	// Initialize the API with the parser
 	api := api.New(p, logger)

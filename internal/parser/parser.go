@@ -13,7 +13,7 @@ type Parser struct {
 	*Scanner
 }
 
-func NewParser(logger logging.Logger, ethEndpoint string, initialBlockNumber int) *Parser {
+func New(logger logging.Logger, ethEndpoint string, initialBlockNumber int) *Parser {
 	db := memorydb.New()
 	ethClient := ethclient.New(ethEndpoint)
 	scanner := NewScanner(db, ethClient, logger, initialBlockNumber)
