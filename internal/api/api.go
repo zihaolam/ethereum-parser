@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/zihaolam/ethereum-parser/internal/logging"
@@ -27,6 +28,7 @@ func (api *Api) Start(ctx context.Context, addr string) error {
 	mux.HandleFunc("/subscribe", api.loggingMiddleware(api.handleSubscribe()))
 	mux.HandleFunc("/transactions", api.loggingMiddleware(api.handleGetTransactions()))
 	mux.HandleFunc("/current_block", api.loggingMiddleware(api.handleGetCurrentBlock()))
+	mux.HandleFunc("/scan", api.loggingMiddleware(api.handleScanBlock()))
 	mux.HandleFunc("/", api.loggingMiddleware(api.handleWildcard()))
 
 	server := &http.Server{
@@ -65,11 +67,16 @@ func (api *Api) handleSubscribe() http.HandlerFunc {
 			return
 		}
 
-		if api.parser.Subscribe(address) {
-			api.logger.Println(w, "Subscribed to address %s", address)
-		} else {
-			http.Error(w, "Already subscribed", http.StatusBadRequest)
+		if subscribed := api.parser.Subscribe(address); !subscribed {
+			json.NewEncoder(w).
+				Encode(map[string]interface{}{"data": false, "message": "Already subscribed" + address})
+			return
 		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).
+			Encode(map[string]interface{}{"data": true, "message": "Subscribed to address " + address})
+		return
 	}
 }
 
@@ -92,5 +99,23 @@ func (api *Api) handleGetCurrentBlock() http.HandlerFunc {
 		block := api.parser.GetCurrentBlock()
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]int{"current_block": block})
+	}
+}
+
+func (api *Api) handleScanBlock() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		blocknumberQuery := r.URL.Query().Get("blocknumber")
+		blocknumber, err := strconv.Atoi(blocknumberQuery)
+		if err != nil {
+			http.Error(w, "Failed to parse block number", http.StatusBadRequest)
+			return
+		}
+		block, err := api.parser.ScanBlock(r.Context(), blocknumber)
+		if err != nil {
+			http.Error(w, "Failed to scan block", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(block)
 	}
 }

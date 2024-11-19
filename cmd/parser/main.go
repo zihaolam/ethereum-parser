@@ -39,7 +39,9 @@ func main() {
 	// Use default logger for now
 	logger := log.Default()
 
-	p := parser.New(logger, getEndpoint(*testnet), *initialBlockNumber)
+	endpoint := getEndpoint(*testnet)
+
+	p := parser.New(logger, endpoint, *initialBlockNumber)
 
 	// Initialize the API with the parser
 	api := api.New(p, logger)
@@ -60,7 +62,7 @@ func main() {
 	go func() {
 		// Start the scanner
 		interval := time.Duration(*scanInterval) * time.Second
-		logger.Println("Starting scanner")
+		logger.Println("Starting scanner on " + endpoint)
 		p.StartScan(ctx, interval)
 	}()
 

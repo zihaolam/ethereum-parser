@@ -30,10 +30,17 @@ func NewScanner(
 	}
 }
 
+// Save transactions to the datastore
 func (b *Scanner) SaveTxs(txs []ethclient.Transaction) error {
 	txMap := make(map[string][]ethclient.Transaction)
 
 	for _, tx := range txs {
+		if _, ok := txMap[tx.From]; !ok {
+			txMap[tx.From] = make([]ethclient.Transaction, 0)
+		}
+		if _, ok := txMap[tx.To]; !ok {
+			txMap[tx.To] = make([]ethclient.Transaction, 0)
+		}
 		txMap[tx.From] = append(txMap[tx.From], tx)
 		txMap[tx.To] = append(txMap[tx.To], tx)
 	}
@@ -49,6 +56,7 @@ func (b *Scanner) SaveTxs(txs []ethclient.Transaction) error {
 	return nil
 }
 
+// Filter subscribed transactions
 func (b *Scanner) FilterSubscribedTxs(txs []ethclient.Transaction) []ethclient.Transaction {
 	subscribedTxs := make([]ethclient.Transaction, 0)
 	for _, tx := range txs {
@@ -60,21 +68,13 @@ func (b *Scanner) FilterSubscribedTxs(txs []ethclient.Transaction) []ethclient.T
 	return subscribedTxs
 }
 
+// Save transactions to subscribers
 func (b *Scanner) SaveTxsToSubscribers(txs []ethclient.Transaction) error {
 	subscribedTxs := b.FilterSubscribedTxs(txs)
 	return b.SaveTxs(subscribedTxs)
 }
 
-func (b *Scanner) ScanBlock(ctx context.Context, blockNumber int) (ethclient.Block, error) {
-	block, err := b.ethClient.GetBlockByNumber(ctx, blockNumber)
-	if err != nil {
-		return ethclient.Block{}, err
-	}
-
-	return block, nil
-}
-
-// returns 0 if there are no more new blocks else returns the next block number
+// Returns 0 if there are no more new blocks else returns the next block number
 func (b *Scanner) GetNextBlock(ctx context.Context) (int, error) {
 	currBlockNumber, err := b.ethClient.GetCurrentBlockNumber(ctx)
 	if err != nil {
@@ -91,6 +91,11 @@ func (b *Scanner) GetNextBlock(ctx context.Context) (int, error) {
 	}
 
 	return b.lastBlockNumber + 1, nil
+}
+
+// Expose scanblock method
+func (b *Scanner) ScanBlock(ctx context.Context, blockNumber int) (ethclient.Block, error) {
+	return b.ethClient.GetBlockByNumber(ctx, blockNumber)
 }
 
 // Scan checks for new blocks and saves transactions to the datastore.
@@ -125,10 +130,17 @@ func (b *Scanner) ScanAll(ctx context.Context) error {
 // Interval scan for new blocks
 func (b *Scanner) StartScan(ctx context.Context, interval time.Duration) {
 	timer1 := time.NewTimer(interval)
+
+	// initial scan
+	err := b.ScanAll(ctx)
+	if err != nil {
+		b.logger.Printf("error scanning: %v", err)
+	}
+
 	for {
 		select {
 		case <-ctx.Done():
-			b.logger.Println("stopping scanner")
+			b.logger.Println("Stopping scanner")
 			return
 		case <-timer1.C:
 			go func() {

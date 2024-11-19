@@ -98,6 +98,8 @@ func sendRPC[T any](
 
 	var responseBody ResponseBody[T]
 
+	defer r.Body.Close()
+
 	if err := json.NewDecoder(r.Body).Decode(&responseBody); err != nil {
 		return ResponseBody[T]{}, fmt.Errorf("error decoding response body: %v", err)
 	}
@@ -128,7 +130,7 @@ func (c Client) GetCurrentBlockNumber(ctx context.Context) (int, error) {
 func (c Client) GetBlockByNumber(ctx context.Context, blocknumber int) (Block, error) {
 	body := makeRequestBody(
 		GetBlockByNumberMethod,
-		[]string{fmt.Sprintf("0x%x", blocknumber), "true"},
+		[]interface{}{fmt.Sprintf("0x%x", blocknumber), true},
 	)
 	res, err := sendRPC[Block](ctx, c.endpoint, body)
 
